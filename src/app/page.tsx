@@ -56,11 +56,11 @@ export default function Home() {
               Replace initial phone screens with one-way video interviews. Save hundreds of hours, evaluate better, and hire the right people faster without the scheduling nightmare.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/login" className="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-xl shadow-primary/25 hover:shadow-primary/40 flex items-center justify-center gap-2 group">
+              <Link href="/login" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 flex items-center justify-center gap-2 group">
                 Start for free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <a href="#how-it-works" className="w-full sm:w-auto bg-surface border border-white/10 hover:bg-white/10 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all flex items-center justify-center gap-2">
+              <a href="#how-it-works" className="w-full sm:w-auto bg-white/5 border border-white/20 hover:bg-white/10 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all flex items-center justify-center gap-2">
                 See how it works
               </a>
             </div>
