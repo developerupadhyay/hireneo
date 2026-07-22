@@ -44,7 +44,7 @@ export default async function CandidatesPage({ params }: { params: Promise<{ id:
             <p className="text-white/60">No candidates have started the interview yet.</p>
           </div>
         ) : (
-          position.interviews.map(interview => (
+          position.interviews.map((interview: any) => (
             <div key={interview.id} className="bg-surface/50 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
               <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
                 <div>
@@ -70,8 +70,8 @@ export default async function CandidatesPage({ params }: { params: Promise<{ id:
                   <p className="text-sm text-white/40 text-center py-4">No video responses recorded yet.</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {interview.responses.map(response => {
-                      const question = position.questions.find(q => q.id === response.questionId)
+                    {interview.responses.map((response: any) => {
+                      const question = position.questions.find((q: any) => q.id === response.questionId)
                       return (
                       <div key={response.id} className="bg-surface border border-white/5 rounded-xl p-4 shadow-lg">
                         <div className="flex items-start gap-3 mb-3">
