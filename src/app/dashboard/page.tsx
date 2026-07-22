@@ -9,9 +9,17 @@ export default async function DashboardPage() {
 
   if (!user) return null
 
-  // Get metrics
+  // Get metrics dynamically
   const positionsCount = await prisma.position.count({
     where: { profileId: user.id }
+  })
+  
+  const candidatesCount = await prisma.interview.count({
+    where: { position: { profileId: user.id } }
+  })
+
+  const videosCount = await prisma.videoResponse.count({
+    where: { interview: { position: { profileId: user.id } } }
   })
 
   return (
@@ -50,7 +58,7 @@ export default async function DashboardPage() {
             </div>
             <h3 className="text-xl font-medium text-white/90">Candidates</h3>
           </div>
-          <p className="text-5xl font-bold text-white relative z-10">0</p>
+          <p className="text-5xl font-bold text-white relative z-10">{candidatesCount}</p>
         </div>
 
         <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
@@ -61,7 +69,7 @@ export default async function DashboardPage() {
             </div>
             <h3 className="text-xl font-medium text-white/90">Videos Recorded</h3>
           </div>
-          <p className="text-5xl font-bold text-white relative z-10">0</p>
+          <p className="text-5xl font-bold text-white relative z-10">{videosCount}</p>
         </div>
       </div>
       

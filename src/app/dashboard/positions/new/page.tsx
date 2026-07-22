@@ -18,8 +18,8 @@ export default function NewPositionPage() {
             <Briefcase className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Create New Position</h1>
-            <p className="text-white/50 text-lg">Let's start by defining the role you are hiring for.</p>
+            <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Create a New Position</h1>
+            <p className="text-white/50 text-lg">Define the role you&apos;re hiring for.</p>
           </div>
         </div>
 

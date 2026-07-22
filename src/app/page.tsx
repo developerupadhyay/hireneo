@@ -397,8 +397,8 @@ export default function Home() {
                   transition={{ duration: 0.7, delay: i * 0.15 }}
                   className="bg-white/[0.03] border border-white/5 p-10 rounded-[2rem] hover:bg-white/[0.05] transition-colors relative"
                 >
-                  <div className="text-blue-500 mb-6 text-6xl opacity-20 font-serif absolute top-6 left-6">"</div>
-                  <p className="text-lg text-white/80 leading-relaxed mb-8 relative z-10 pt-4">"{testimonial.quote}"</p>
+                  <div className="text-blue-500 mb-6 text-6xl opacity-20 font-serif absolute top-6 left-6">&quot;</div>
+                  <p className="text-lg text-white/80 leading-relaxed mb-8 relative z-10 pt-4">&quot;{testimonial.quote}&quot;</p>
                   <div className="flex items-center gap-4 relative z-10">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
                     <div>
