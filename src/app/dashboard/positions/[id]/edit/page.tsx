@@ -43,7 +43,7 @@ export default async function InterviewBuilder({ params }: { params: Promise<{ i
               <p className="text-white/60">No questions added yet. Use the panel on the right to add some.</p>
             </div>
           ) : (
-            position.questions.map((q, index) => (
+            position.questions.map((q: any, index: number) => (
               <div key={q.id} className="bg-surface/50 border border-white/10 p-5 rounded-2xl flex items-start gap-4 hover:border-white/20 transition-all">
                 <div className="mt-1 cursor-grab text-white/20 hover:text-white/60">
                   <GripVertical className="w-5 h-5" />
