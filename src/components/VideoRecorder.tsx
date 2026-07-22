@@ -40,7 +40,7 @@ export default function VideoRecorder({
 
     return () => {
       if (stream) {
-        stream.getTracks().forEach(track => track.stop())
+        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
       }
     }
   }, [])

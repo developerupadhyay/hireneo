@@ -12,7 +12,7 @@ export default async function InterviewLandingPage({ params }: { params: Promise
 
   if (!position) return <div className="text-white p-8">Position not found</div>
 
-  const totalTime = position.questions.reduce((acc, q) => acc + q.thinkTime + q.answerTime, 0)
+  const totalTime = position.questions.reduce((acc: number, q: any) => acc + q.thinkTime + q.answerTime, 0)
   const totalMins = Math.ceil(totalTime / 60)
 
   return (
