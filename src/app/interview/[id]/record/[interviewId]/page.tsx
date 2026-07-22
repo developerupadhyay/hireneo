@@ -17,8 +17,8 @@ export default async function RecordInterviewPage({ params }: { params: Promise<
   if (!interview) return <div className="p-8 text-white">Interview not found</div>
 
   // Filter out questions that have already been answered
-  const answeredQuestionIds = interview.responses.map(r => r.questionId)
-  const remainingQuestions = interview.position.questions.filter(q => !answeredQuestionIds.includes(q.id))
+  const answeredQuestionIds = interview.responses.map((r: any) => r.questionId)
+  const remainingQuestions = interview.position.questions.filter((q: any) => !answeredQuestionIds.includes(q.id))
 
   if (remainingQuestions.length === 0) {
     // If all questions are answered, mark as completed

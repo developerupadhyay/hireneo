@@ -29,7 +29,7 @@ export default async function PositionsPage() {
       </div>
 
       <div className="space-y-4">
-        {positions.map(position => (
+        {positions.map((position: any) => (
           <div key={position.id} className="block bg-surface/40 border border-white/5 transition-all rounded-2xl p-6 group">
             <div className="flex justify-between items-center">
               <Link href={`/dashboard/positions/${position.id}/candidates`} className="flex items-center gap-4 flex-1">
