@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// Recruiter Profile (linked to Supabase auth.users via id)
+model Profile {
+  id        String     @id
+  email     String     @unique
+  name      String?
+  companyId String
+  company   Company    @relation(fields: [companyId], references: [id])
+  positions Position[]
+  createdAt DateTime   @default(now())
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  name      String
+  profiles  Profile[]
+  createdAt DateTime  @default(now())
+}
+
+model Position {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  profileId   String
+  profile     Profile     @relation(fields: [profileId], references: [id])
+  questions   Question[]
+  interviews  Interview[]
+  createdAt   DateTime    @default(now())
+}
+
+model Question {
+  id         String   @id @default(uuid())
+  positionId String
+  position   Position @relation(fields: [positionId], references: [id])
+  content    String // Text question
+  videoUrl   String? // Optional video of recruiter asking the question
+  thinkTime  Int // in seconds
+  answerTime Int // in seconds
+  retakes    Int      @default(0) // 0 means no retakes
+  order      Int // order in the interview
+}
+
+model Candidate {
+  id         String      @id @default(uuid())
+  email      String
+  name       String
+  interviews Interview[]
+  createdAt  DateTime    @default(now())
+}
+
+model Interview {
+  id          String          @id @default(uuid())
+  token       String          @unique @default(uuid()) // The magic link token for candidate
+  positionId  String
+  position    Position        @relation(fields: [positionId], references: [id])
+  candidateId String
+  candidate   Candidate       @relation(fields: [candidateId], references: [id])
+  status      String          @default("INVITED") // INVITED, STARTED, COMPLETED
+  responses   VideoResponse[]
+  createdAt   DateTime        @default(now())
+  completedAt DateTime?
+}
+
+model VideoResponse {
+  id          String    @id @default(uuid())
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id])
+  questionId  String
+  videoUrl    String // Path in Supabase Storage
+  createdAt   DateTime  @default(now())
+}
