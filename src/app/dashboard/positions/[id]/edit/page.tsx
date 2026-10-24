@@ -40,7 +40,7 @@ export default async function InterviewBuilder({ params }: { params: Promise<{ i
           <div className="flex items-center gap-2">
             <Link 
               href={`/dashboard/positions/${position.id}/candidates`} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 border border-blue-200 dark:border-blue-500/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 border border-blue-200 dark:border-blue-500/20 shadow-xs transition-colors"
             >
               <Users className="w-3.5 h-3.5" />
               <span>Candidates</span>
@@ -185,7 +185,7 @@ export default async function InterviewBuilder({ params }: { params: Promise<{ i
             
             <button 
               type="submit" 
-              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm hover:shadow transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 mt-2"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 mt-2"
             >
               <Plus className="w-4 h-4" />
               Add Question

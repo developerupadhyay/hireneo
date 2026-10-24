@@ -1,9 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
+import { createPortal } from 'react-dom'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { deletePosition } from '@/app/dashboard/positions/actions'
 import { useRouter } from 'next/navigation'
+
+const emptySubscribe = () => () => {}
+const getMounted = () => true
+const getServerMounted = () => false
 
 interface DeletePositionButtonProps {
   positionId: string
@@ -20,6 +25,7 @@ export default function DeletePositionButton({
   className = '',
   variant = 'icon',
 }: DeletePositionButtonProps) {
+  const isMounted = useSyncExternalStore(emptySubscribe, getMounted, getServerMounted)
   const [isOpen, setIsOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
@@ -49,7 +55,7 @@ export default function DeletePositionButton({
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 ${className}`}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-900/50 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 ${className}`}
         >
           <Trash2 className="w-4 h-4" />
           <span>Delete Position</span>
@@ -60,16 +66,21 @@ export default function DeletePositionButton({
           onClick={() => setIsOpen(true)}
           aria-label={`Delete ${positionTitle}`}
           title="Delete position"
-          className={`p-2 rounded-xl text-slate-400 dark:text-white/40 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 ${className}`}
+          className={`p-2 rounded-xl text-slate-600 dark:text-white/70 bg-slate-100 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-white/10 hover:border-rose-200 dark:hover:border-rose-900/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 shadow-xs ${className}`}
         >
           <Trash2 className="w-4 h-4" />
         </button>
       )}
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fadeIn">
+      {isOpen && isMounted && createPortal(
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isDeleting) setIsOpen(false)
+          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fadeIn"
+        >
           <div 
-            className="w-full max-w-md bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+            className="w-full max-w-md bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden z-10"
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="delete-dialog-title"
@@ -95,7 +106,7 @@ export default function DeletePositionButton({
                 type="button"
                 onClick={() => setIsOpen(false)}
                 disabled={isDeleting}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-white/80 bg-white dark:bg-white/5 border border-slate-300 dark:border-white/15 hover:bg-slate-50 dark:hover:bg-white/10 shadow-xs transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -103,14 +114,15 @@ export default function DeletePositionButton({
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-rose-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" />
-                {isDeleting ? 'Deleting...' : 'Delete Position'}
+                <span>{isDeleting ? 'Deleting...' : 'Delete Position'}</span>
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

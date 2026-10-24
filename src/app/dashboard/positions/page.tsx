@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/utils/supabase/server'
 import prisma from '@/utils/prisma'
-import { Plus, Briefcase, Video, Users } from 'lucide-react'
+import { Plus, Briefcase, Video, Users, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import EditPositionModal from '@/components/EditPositionModal'
 import DeletePositionButton from '@/components/DeletePositionButton'
@@ -31,10 +31,10 @@ export default async function PositionsPage() {
         </div>
         <Link 
           href="/dashboard/positions/new" 
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm hover:shadow transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 hover:shadow-lg transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
-          <Plus className="w-4 h-4" />
-          <span>New Position</span>
+          <Plus className="w-4 h-4 text-white" />
+          <span className="text-white">New Position</span>
         </Link>
       </div>
 
@@ -63,22 +63,24 @@ export default async function PositionsPage() {
                 </div>
               </Link>
               
-              <div className="flex items-center gap-2 w-full md:w-auto">
+              <div className="flex items-center gap-2.5 w-full md:w-auto">
                 <Link 
                   href={`/dashboard/positions/${position.id}/edit`} 
-                  className="flex-1 md:flex-none text-center text-xs sm:text-sm font-semibold text-slate-700 dark:text-white/80 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 transition-colors"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-white/15 shadow-xs transition-all active:scale-[0.98]"
                 >
-                  Questions
+                  <MessageSquare className="w-3.5 h-3.5 text-slate-600 dark:text-white/60" />
+                  <span>Questions</span>
                 </Link>
                 <Link 
                   href={`/dashboard/positions/${position.id}/candidates`} 
-                  className="flex-1 md:flex-none text-center text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-4 py-2.5 rounded-xl border border-blue-200 dark:border-blue-500/20 transition-colors"
+                  className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 px-4 py-2.5 rounded-xl border border-blue-200 dark:border-blue-500/30 shadow-xs transition-all active:scale-[0.98]"
                 >
-                  Candidates
+                  <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>Candidates</span>
                 </Link>
                 
                 {/* Position Edit & Delete actions */}
-                <div className="flex items-center gap-1 border-l border-slate-200 dark:border-white/10 pl-2">
+                <div className="flex items-center gap-1.5 border-l border-slate-200 dark:border-white/10 pl-2.5 ml-0.5">
                   <EditPositionModal position={{ id: position.id, title: position.title, description: position.description }} />
                   <DeletePositionButton positionId={position.id} positionTitle={position.title} />
                 </div>

@@ -253,7 +253,7 @@ export default function QuestionList({ questions, positionId }: QuestionListProp
                         onClick={() => handleStartEdit(q)}
                         title="Edit question"
                         aria-label={`Edit Question ${index + 1}`}
-                        className="p-1.5 rounded-lg text-slate-400 dark:text-white/40 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        className="p-1.5 rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-white/10 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -262,7 +262,7 @@ export default function QuestionList({ questions, positionId }: QuestionListProp
                         onClick={() => setDeleteConfirmId(q.id)}
                         title="Delete question"
                         aria-label={`Delete Question ${index + 1}`}
-                        className="p-1.5 rounded-lg text-slate-400 dark:text-white/40 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                        className="p-1.5 rounded-lg text-slate-700 dark:text-white/70 bg-slate-100 dark:bg-white/5 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-white/10 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

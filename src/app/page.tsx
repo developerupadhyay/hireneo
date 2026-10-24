@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Video, Clock, Users, ArrowRight, ShieldCheck, Sparkles, ChevronDown } from 'lucide-react'
-import ThemeSwitcher from '@/components/ThemeSwitcher'
 import InteractiveHeroPreview from '@/components/InteractiveHeroPreview'
 import HiringRoiCalculator from '@/components/HiringRoiCalculator'
 
@@ -51,16 +50,15 @@ export default function Home() {
           </Link>
 
           <div className="flex items-center gap-3 sm:gap-5">
-            <ThemeSwitcher />
             <Link
               href="/login"
-              className="hidden sm:block text-sm font-semibold text-slate-600 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-sm font-semibold text-slate-700 dark:text-white/80 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-md shadow-blue-500/20 transition-all active:scale-[0.98]"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Start Free</span>
