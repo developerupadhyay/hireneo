@@ -133,7 +133,7 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 border border-purple-200 dark:border-purple-500/20 shadow-xs transition-colors"
+        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 border border-purple-200 dark:border-purple-500/20 shadow-xs transition-colors min-h-[44px] touch-target-48"
       >
         <BookOpen className="w-3.5 h-3.5" />
         <span>Question Library</span>
@@ -144,18 +144,18 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false)
           }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md animate-fadeIn"
         >
           <div
-            className="w-full max-w-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden max-h-[90vh] flex flex-col z-10"
+            className="w-full max-w-2xl bento-card bg-white dark:bg-[#0c111a] p-6 sm:p-8 shadow-2xl relative overflow-hidden max-h-[90vh] flex flex-col z-10"
             role="dialog"
             aria-modal="true"
             aria-labelledby="templates-title"
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-white/10 mb-5 flex-shrink-0">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-white/10 mb-5 flex-shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl border border-purple-500/20">
+                <div className="p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl border border-purple-200 dark:border-purple-500/20">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
@@ -170,7 +170,7 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg text-slate-400 dark:text-white/40 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors touch-target-48 min-h-[40px] min-w-[40px] flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -185,9 +185,9 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap min-h-[36px] touch-target-48 ${
                       isActive
-                        ? 'bg-purple-600 text-white shadow-xs'
+                        ? 'bg-purple-600 text-white shadow-xs micro-tactile font-bold'
                         : 'text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/10'
                     }`}
                   >
@@ -206,14 +206,14 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
                 return (
                   <div
                     key={idx}
-                    className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                    className="p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 px-2 py-0.5 rounded">
                           {template.category}
                         </span>
-                        <div className="flex items-center gap-2 text-[11px] font-medium text-slate-500 dark:text-white/50">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-500 dark:text-white/50 font-mono num-tabular">
                           <span>Think: {template.thinkTime}s</span>
                           <span>•</span>
                           <span>Answer: {template.answerTime}s</span>
@@ -228,7 +228,7 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
                       type="button"
                       onClick={() => handleAddTemplate(template, idx)}
                       disabled={isAdding || isAdded}
-                      className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${
+                      className={`flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 min-h-[40px] touch-target-48 ${
                         isAdded
                           ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40'
                           : 'bg-purple-600 hover:bg-purple-700 text-white shadow-xs'
@@ -242,7 +242,7 @@ export default function QuestionTemplatesModal({ positionId }: QuestionTemplates
                       ) : (
                         <>
                           <Plus className="w-3.5 h-3.5" />
-                          <span>{isAdding ? 'Adding...' : 'Add to Position'}</span>
+                          <span>{isAdding ? 'Adding...' : 'Add to Role'}</span>
                         </>
                       )}
                     </button>

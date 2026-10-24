@@ -237,18 +237,18 @@ export default function VideoRecorder({
 
   if (cameraError) {
     return (
-      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-white/[0.03] backdrop-blur-3xl border border-rose-200 dark:border-rose-900/40 rounded-3xl p-8 sm:p-12 text-center shadow-xl">
-        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/50 rounded-2xl border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto mb-5">
+      <div className="w-full max-w-2xl mx-auto bento-card p-8 sm:p-12 text-center shadow-xl border-rose-200 dark:border-rose-900/40">
+        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/50 rounded-2xl border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto mb-4">
           <VideoOff className="w-8 h-8" />
         </div>
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Device Access Issue</h3>
-        <p className="text-slate-600 dark:text-white/60 text-sm sm:text-base leading-relaxed mb-6 max-w-md mx-auto">
+        <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">Device Access Issue</h3>
+        <p className="text-slate-600 dark:text-white/60 text-xs sm:text-sm leading-relaxed mb-6 max-w-md mx-auto">
           {cameraError}
         </p>
         <button
           type="button"
           onClick={setupCamera}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98] min-h-[48px] touch-target-48"
         >
           <Camera className="w-4 h-4" />
           <span>Retry Camera Access</span>
@@ -259,40 +259,40 @@ export default function VideoRecorder({
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Question Header Card */}
-      <div className="w-full bg-white dark:bg-white/[0.03] backdrop-blur-3xl border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 mb-6 shadow-sm dark:shadow-2xl relative overflow-hidden transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-3 py-1 rounded-md self-start">
+      {/* Question Header Bento Card */}
+      <div className="w-full bento-card p-6 sm:p-8 mb-6 shadow-md transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2.5 py-1 rounded-md self-start">
             Prompt
           </span>
 
-          {/* Status Badge */}
-          <div className="flex items-center gap-3">
+          {/* Status Badge with tactile styling */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             {status === 'thinking' && (
-              <span className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide">
+              <span className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold tracking-wide micro-tactile">
                 <Clock className="w-4 h-4" />
-                <span>Think Time: {formatTime(timeLeft)}</span>
+                <span className="num-tabular font-mono">Think Time: {formatTime(timeLeft)}</span>
               </span>
             )}
             {status === 'recording' && (
-              <span className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide border transition-all ${
+              <span className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold tracking-wide border transition-all micro-tactile ${
                 isLowTime 
                   ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-300 animate-pulse' 
-                  : 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40'
               }`}>
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                <span>Recording: {formatTime(timeLeft)}</span>
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                <span className="num-tabular font-mono">Recording: {formatTime(timeLeft)}</span>
               </span>
             )}
             {status === 'reviewing' && (
-              <span className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide">
+              <span className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold tracking-wide micro-tactile">
                 <CheckCircle className="w-4 h-4" />
                 <span>Reviewing Response</span>
               </span>
             )}
 
             {/* Retakes badge */}
-            <span className="text-xs font-medium text-slate-500 dark:text-white/50 bg-slate-100 dark:bg-white/5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/5">
+            <span className="text-xs font-semibold text-slate-500 dark:text-white/50 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-white/10 num-tabular">
               {retakes === 999 
                 ? '∞ Retakes' 
                 : `${retakesLeft} ${retakesLeft === 1 ? 'retake' : 'retakes'} left`}
@@ -300,13 +300,13 @@ export default function VideoRecorder({
           </div>
         </div>
 
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-relaxed">
+        <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-relaxed">
           {question}
         </h2>
       </div>
 
       {/* Video Viewport Container */}
-      <div className="relative w-full aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-white/10 ring-1 ring-slate-900/5">
+      <div className="relative w-full aspect-video bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-white/10">
         {status !== 'reviewing' ? (
           <>
             <video
@@ -317,7 +317,7 @@ export default function VideoRecorder({
               className="w-full h-full object-cover transform scale-x-[-1]"
             />
             {isInitializing && (
-              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center text-white text-sm font-medium">
+              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center text-white text-xs sm:text-sm font-medium">
                 Initializing camera and microphone...
               </div>
             )}
@@ -325,7 +325,7 @@ export default function VideoRecorder({
             {status === 'recording' && (
               <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white text-xs font-semibold">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                <span>LIVE</span>
+                <span>LIVE RECORDER</span>
               </div>
             )}
           </>
@@ -339,13 +339,13 @@ export default function VideoRecorder({
         )}
       </div>
 
-      {/* Action Controls */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
+      {/* Action Controls with min 48px touch targets */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
         {status === 'thinking' && (
           <button
             type="button"
             onClick={startRecording}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-md shadow-rose-500/20 hover:shadow-lg transition-all active:scale-[0.98] min-h-[48px] touch-target-48 w-full sm:w-auto"
           >
             <Camera className="w-5 h-5" />
             <span>Start Recording Now</span>
@@ -356,10 +356,10 @@ export default function VideoRecorder({
           <button
             type="button"
             onClick={stopRecording}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-white/10 dark:hover:bg-white/20 text-white font-bold text-base shadow-sm transition-all active:scale-[0.98] border border-white/10"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-white/15 dark:hover:bg-white/25 text-white font-bold text-base shadow-md transition-all active:scale-[0.98] border border-white/10 min-h-[48px] touch-target-48 w-full sm:w-auto"
           >
             <Square className="w-5 h-5" />
-            <span>Stop Recording ({formatTime(timeLeft)})</span>
+            <span className="num-tabular font-mono">Stop Recording ({formatTime(timeLeft)})</span>
           </button>
         )}
 
@@ -369,10 +369,10 @@ export default function VideoRecorder({
               <button
                 type="button"
                 onClick={handleRetake}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-800 dark:text-white font-semibold text-sm transition-all active:scale-[0.98] border border-slate-300 dark:border-white/10"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-semibold text-sm transition-all active:scale-[0.98] border border-slate-300 dark:border-white/10 min-h-[48px] touch-target-48"
               >
                 <RefreshCcw className="w-4 h-4" />
-                <span>Retake ({retakes === 999 ? '∞' : `${retakesLeft} left`})</span>
+                <span className="num-tabular">Retake ({retakes === 999 ? '∞' : `${retakesLeft} left`})</span>
               </button>
             ) : (
               <span className="text-xs text-slate-400 dark:text-white/40 italic px-3 py-2">
@@ -383,7 +383,7 @@ export default function VideoRecorder({
             <button
               type="button"
               onClick={() => videoBlob && onComplete(videoBlob)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm hover:shadow transition-all active:scale-[0.98]"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-500/20 hover:shadow-lg transition-all active:scale-[0.98] min-h-[48px] touch-target-48"
             >
               <CheckCircle className="w-4 h-4" />
               <span>Submit Answer & Continue</span>

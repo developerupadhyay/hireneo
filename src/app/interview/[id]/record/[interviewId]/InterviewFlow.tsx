@@ -65,27 +65,27 @@ export default function InterviewFlow({ interviewId, questions }: { interviewId:
 
   if (isUploading) {
     return (
-      <div className="text-center relative z-10 bg-white dark:bg-[#0a0a0a]/90 backdrop-blur-3xl border border-slate-200 dark:border-white/10 p-12 sm:p-16 rounded-3xl shadow-2xl max-w-lg mx-auto">
-        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6 shadow-sm"></div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Uploading Response...
+      <div className="bento-card p-10 sm:p-14 text-center max-w-md mx-auto shadow-2xl relative z-10">
+        <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-5 shadow-sm"></div>
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Uploading Video Answer...
         </h2>
-        <p className="text-slate-500 dark:text-white/50 mt-2 text-sm sm:text-base">
-          Saving your video answer. Please don&apos;t close this window.
+        <p className="text-slate-500 dark:text-white/50 mt-2 text-xs sm:text-sm">
+          Securing and indexing your recording. Please do not close or refresh this tab.
         </p>
       </div>
     )
   }
 
   return (
-    <div className="w-full">
-      {/* Interview Progress Bar */}
-      <div className="max-w-2xl mx-auto mb-8 text-center relative z-10">
-        <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-white/50 mb-2">
+    <div className="w-full space-y-6">
+      {/* Interview Progress Bento Bar */}
+      <div className="max-w-2xl mx-auto bento-card p-4 text-center relative z-10">
+        <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-white/60 mb-2">
           <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-          <span>{progressPercent}% Complete</span>
+          <span className="font-mono num-tabular text-blue-600 dark:text-blue-400 font-bold">{progressPercent}% Complete</span>
         </div>
-        <div className="h-2 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+        <div className="h-2 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
           <div 
             className="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
             style={{ width: `${Math.max(5, progressPercent)}%` }}
