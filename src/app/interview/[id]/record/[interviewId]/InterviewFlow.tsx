@@ -4,17 +4,20 @@
 
 import { useState } from 'react'
 import VideoRecorder from '@/components/VideoRecorder'
+import DeviceCheckStep from '@/components/DeviceCheckStep'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import { saveVideoResponse } from './actions'
 
 export default function InterviewFlow({ interviewId, questions }: { interviewId: string, questions: any[] }) {
+  const [isDeviceChecked, setIsDeviceChecked] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   const currentQuestion = questions[currentQuestionIndex]
+  const progressPercent = Math.round(((currentQuestionIndex) / questions.length) * 100)
 
   const handleComplete = async (videoBlob: Blob) => {
     setIsUploading(true)
@@ -22,7 +25,7 @@ export default function InterviewFlow({ interviewId, questions }: { interviewId:
       // 1. Upload to Supabase Storage
       const fileName = `${interviewId}/${currentQuestion.id}-${Date.now()}.webm`
       const { data, error } = await supabase.storage.from('videos').upload(fileName, videoBlob, {
-        contentType: 'video/webm'
+        contentType: videoBlob.type || 'video/webm'
       })
       
       if (error) {
@@ -50,28 +53,52 @@ export default function InterviewFlow({ interviewId, questions }: { interviewId:
     }
   }
 
+  // Show equipment check before starting Question 1
+  if (!isDeviceChecked) {
+    return (
+      <DeviceCheckStep 
+        totalQuestions={questions.length} 
+        onReady={() => setIsDeviceChecked(true)} 
+      />
+    )
+  }
+
   if (isUploading) {
     return (
-      <div className="text-center relative z-10 bg-white/[0.02] backdrop-blur-3xl border border-white/5 p-12 rounded-[2rem] shadow-2xl">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6 shadow-[0_0_15px_rgba(59,130,246,0.3)]"></div>
-        <h2 className="text-3xl font-bold text-white tracking-tight">Uploading Response...</h2>
-        <p className="text-white/50 mt-3 text-lg">Please don&apos;t close this window.</p>
+      <div className="text-center relative z-10 bg-white dark:bg-[#0a0a0a]/90 backdrop-blur-3xl border border-slate-200 dark:border-white/10 p-12 sm:p-16 rounded-3xl shadow-2xl max-w-lg mx-auto">
+        <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-6 shadow-sm"></div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Uploading Response...
+        </h2>
+        <p className="text-slate-500 dark:text-white/50 mt-2 text-sm sm:text-base">
+          Saving your video answer. Please don&apos;t close this window.
+        </p>
       </div>
     )
   }
 
   return (
     <div className="w-full">
-      <div className="text-center mb-10 relative z-10">
-        <div className="inline-block bg-blue-500/10 text-blue-400 font-semibold tracking-widest uppercase border border-blue-500/20 px-6 py-2 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-          Question {currentQuestionIndex + 1} of {questions.length}
+      {/* Interview Progress Bar */}
+      <div className="max-w-2xl mx-auto mb-8 text-center relative z-10">
+        <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-white/50 mb-2">
+          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+          <span>{progressPercent}% Complete</span>
+        </div>
+        <div className="h-2 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${Math.max(5, progressPercent)}%` }}
+          />
         </div>
       </div>
+
       <VideoRecorder 
         key={currentQuestion.id}
         question={currentQuestion.content}
         thinkTime={currentQuestion.thinkTime}
         answerTime={currentQuestion.answerTime}
+        retakes={currentQuestion.retakes ?? 0}
         onComplete={handleComplete}
       />
     </div>

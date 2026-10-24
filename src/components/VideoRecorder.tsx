@@ -1,93 +1,193 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { Camera, Square, RefreshCcw, CheckCircle, AlertCircle, Clock } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Camera, Square, RefreshCcw, CheckCircle, Clock, VideoOff } from 'lucide-react'
 
 export default function VideoRecorder({
   question,
   thinkTime,
   answerTime,
-  onComplete
+  retakes = 0,
+  onComplete,
 }: {
   question: string
   thinkTime: number
   answerTime: number
+  retakes?: number
   onComplete: (videoBlob: Blob) => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([])
-  
+  const streamRef = useRef<MediaStream | null>(null)
+
   const [status, setStatus] = useState<'thinking' | 'recording' | 'reviewing'>('thinking')
   const [timeLeft, setTimeLeft] = useState(thinkTime)
+  const [retakesLeft, setRetakesLeft] = useState(retakes)
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [cameraError, setCameraError] = useState<string | null>(null)
+  const [isInitializing, setIsInitializing] = useState(true)
+
+  // Determine supported video MIME type across browsers (Chrome, Safari, Firefox)
+  const getSupportedMimeType = useCallback(() => {
+    if (typeof MediaRecorder === 'undefined') return 'video/webm'
+    const candidates = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm',
+      'video/mp4;codecs=avc1,mp4a.40.2',
+      'video/mp4',
+    ]
+    for (const t of candidates) {
+      if (MediaRecorder.isTypeSupported(t)) return t
+    }
+    return ''
+  }, [])
+
+  // Camera setup
+  const setupCamera = useCallback(async () => {
+    setIsInitializing(true)
+    setCameraError(null)
+
+    // Stop existing stream if any
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+        audio: { echoCancellation: true, noiseSuppression: true },
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+    } catch (err: unknown) {
+      console.error('Camera/mic access error:', err)
+      const errName = err && typeof err === 'object' && 'name' in err ? (err as { name: string }).name : ''
+      const errMsg = err instanceof Error ? err.message : 'Unknown error'
+      if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+        setCameraError('Camera and microphone permissions were denied. Please allow camera and microphone access in your browser address bar and click Retry.')
+      } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+        setCameraError('No camera or microphone was detected. Please connect a webcam/mic and click Retry.')
+      } else {
+        setCameraError('Unable to access media devices: ' + errMsg)
+      }
+    } finally {
+      setIsInitializing(false)
+    }
+  }, [])
 
   useEffect(() => {
-    let stream: MediaStream | null = null
+    let active = true
 
-    async function setupCamera() {
+    async function initCamera() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+          audio: { echoCancellation: true, noiseSuppression: true },
+        })
+        if (!active) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
+        streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
         }
-      } catch (e) {
-        console.error("Camera access denied", e)
+      } catch (err: unknown) {
+        if (!active) return
+        console.error('Camera/mic access error:', err)
+        const errName = err && typeof err === 'object' && 'name' in err ? (err as { name: string }).name : ''
+        const errMsg = err instanceof Error ? err.message : 'Unknown error'
+        if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+          setCameraError('Camera and microphone permissions were denied. Please allow camera and microphone access in your browser address bar and click Retry.')
+        } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+          setCameraError('No camera or microphone was detected. Please connect a webcam/mic and click Retry.')
+        } else {
+          setCameraError('Unable to access media devices: ' + errMsg)
+        }
+      } finally {
+        if (active) {
+          setIsInitializing(false)
+        }
       }
     }
-    setupCamera()
+
+    initCamera()
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      active = false
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
+        streamRef.current = null
       }
     }
   }, [])
 
-  const startRecording = () => {
-    if (!videoRef.current?.srcObject) return
-
-    setVideoBlob(null)
-    setVideoUrl(null)
-    
-    const stream = videoRef.current.srcObject as MediaStream
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' })
-    const chunks: Blob[] = []
-    
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data)
+  useEffect(() => {
+    return () => {
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl)
       }
     }
+  }, [videoUrl])
 
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' })
-      setVideoBlob(blob)
-      setVideoUrl(URL.createObjectURL(blob))
-      setStatus('reviewing')
+  const startRecording = useCallback(() => {
+    if (!streamRef.current) return
+
+    setVideoBlob(null)
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl)
+      setVideoUrl(null)
     }
 
-    mediaRecorderRef.current = mediaRecorder
-    mediaRecorder.start()
-    setStatus('recording')
-    setTimeLeft(answerTime)
-  }
+    const mimeType = getSupportedMimeType()
+    const options: MediaRecorderOptions = mimeType ? { mimeType } : {}
 
-  const stopRecording = () => {
+    try {
+      const mediaRecorder = new MediaRecorder(streamRef.current, options)
+      const chunks: Blob[] = []
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunks.push(e.data)
+        }
+      }
+
+      mediaRecorder.onstop = () => {
+        const actualMime = mimeType || 'video/webm'
+        const blob = new Blob(chunks, { type: actualMime })
+        setVideoBlob(blob)
+        setVideoUrl(URL.createObjectURL(blob))
+        setStatus('reviewing')
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start(1000) // Collect 1s slices
+      setStatus('recording')
+      setTimeLeft(answerTime)
+    } catch (e: unknown) {
+      console.error('Failed to start MediaRecorder:', e)
+      const msg = e instanceof Error ? e.message : 'Unknown error'
+      setCameraError('Could not start video recorder: ' + msg)
+    }
+  }, [answerTime, getSupportedMimeType, videoUrl])
+
+  const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop()
     }
-  }
+  }, [])
 
-  // Timer logic
+  // Automated countdown logic
   useEffect(() => {
-    if (status === 'reviewing') return
+    if (status === 'reviewing' || cameraError || isInitializing) return
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
           if (status === 'thinking') {
@@ -103,8 +203,29 @@ export default function VideoRecorder({
     }, 1000)
 
     return () => clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, answerTime])
+  }, [status, answerTime, cameraError, isInitializing, startRecording, stopRecording])
+
+  const handleRetake = () => {
+    if (retakes !== 999 && retakesLeft <= 0) return
+
+    if (retakes !== 999) {
+      setRetakesLeft((prev) => prev - 1)
+    }
+
+    setVideoBlob(null)
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl)
+      setVideoUrl(null)
+    }
+
+    setStatus('thinking')
+    setTimeLeft(thinkTime)
+
+    // Ensure live camera feed is active
+    if (videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+    }
+  }
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
@@ -112,92 +233,162 @@ export default function VideoRecorder({
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
+  const isLowTime = timeLeft <= 10 && status === 'recording'
+
+  if (cameraError) {
+    return (
+      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-white/[0.03] backdrop-blur-3xl border border-rose-200 dark:border-rose-900/40 rounded-3xl p-8 sm:p-12 text-center shadow-xl">
+        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/50 rounded-2xl border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 mx-auto mb-5">
+          <VideoOff className="w-8 h-8" />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Device Access Issue</h3>
+        <p className="text-slate-600 dark:text-white/60 text-sm sm:text-base leading-relaxed mb-6 max-w-md mx-auto">
+          {cameraError}
+        </p>
+        <button
+          type="button"
+          onClick={setupCamera}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98]"
+        >
+          <Camera className="w-4 h-4" />
+          <span>Retry Camera Access</span>
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="w-full bg-white/[0.02] backdrop-blur-3xl border border-white/5 rounded-[2rem] p-8 md:p-10 mb-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[50px] pointer-events-none"></div>
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed relative z-10">{question}</h2>
-        <div className="flex justify-between items-center text-sm font-semibold tracking-wider uppercase relative z-10">
-          {status === 'thinking' && (
-             <span className="flex items-center gap-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-4 py-2 rounded-xl">
-               <Clock className="w-4 h-4" /> Thinking Time: {formatTime(timeLeft)}
-             </span>
-          )}
-          {status === 'recording' && (
-             <span className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl">
-               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></span> 
-               Recording: {formatTime(timeLeft)}
-             </span>
-          )}
-          {status === 'reviewing' && (
-             <span className="flex items-center gap-2 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-4 py-2 rounded-xl">
-               <CheckCircle className="w-4 h-4" /> Review your answer
-             </span>
-          )}
+      {/* Question Header Card */}
+      <div className="w-full bg-white dark:bg-white/[0.03] backdrop-blur-3xl border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 mb-6 shadow-sm dark:shadow-2xl relative overflow-hidden transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-3 py-1 rounded-md self-start">
+            Prompt
+          </span>
+
+          {/* Status Badge */}
+          <div className="flex items-center gap-3">
+            {status === 'thinking' && (
+              <span className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide">
+                <Clock className="w-4 h-4" />
+                <span>Think Time: {formatTime(timeLeft)}</span>
+              </span>
+            )}
+            {status === 'recording' && (
+              <span className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide border transition-all ${
+                isLowTime 
+                  ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-300 animate-pulse' 
+                  : 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40'
+              }`}>
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                <span>Recording: {formatTime(timeLeft)}</span>
+              </span>
+            )}
+            {status === 'reviewing' && (
+              <span className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wide">
+                <CheckCircle className="w-4 h-4" />
+                <span>Reviewing Response</span>
+              </span>
+            )}
+
+            {/* Retakes badge */}
+            <span className="text-xs font-medium text-slate-500 dark:text-white/50 bg-slate-100 dark:bg-white/5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/5">
+              {retakes === 999 
+                ? '∞ Retakes' 
+                : `${retakesLeft} ${retakesLeft === 1 ? 'retake' : 'retakes'} left`}
+            </span>
+          </div>
         </div>
+
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-relaxed">
+          {question}
+        </h2>
       </div>
 
-      <div className="relative w-full aspect-video bg-black/50 backdrop-blur-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 ring-1 ring-white/5">
+      {/* Video Viewport Container */}
+      <div className="relative w-full aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-white/10 ring-1 ring-slate-900/5">
         {status !== 'reviewing' ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover transform scale-x-[-1]"
-          />
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover transform scale-x-[-1]"
+            />
+            {isInitializing && (
+              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center text-white text-sm font-medium">
+                Initializing camera and microphone...
+              </div>
+            )}
+            {/* Live Indicator overlay during recording */}
+            {status === 'recording' && (
+              <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-white text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                <span>LIVE</span>
+              </div>
+            )}
+          </>
         ) : (
           <video
             src={videoUrl || undefined}
             controls
+            autoPlay
             className="w-full h-full object-cover bg-black"
           />
         )}
       </div>
 
-      <div className="mt-10 flex gap-4 w-full md:w-auto">
+      {/* Action Controls */}
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
         {status === 'thinking' && (
-          <button 
+          <button
+            type="button"
             onClick={startRecording}
-            className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
           >
-            <Camera className="w-5 h-5" /> Start Recording Now
+            <Camera className="w-5 h-5" />
+            <span>Start Recording Now</span>
           </button>
         )}
-        
+
         {status === 'recording' && (
-          <button 
+          <button
+            type="button"
             onClick={stopRecording}
-            className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 border border-white/10"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-white/10 dark:hover:bg-white/20 text-white font-bold text-base shadow-sm transition-all active:scale-[0.98] border border-white/10"
           >
-            <Square className="w-5 h-5" /> Stop Recording
+            <Square className="w-5 h-5" />
+            <span>Stop Recording ({formatTime(timeLeft)})</span>
           </button>
         )}
 
         {status === 'reviewing' && (
-          <>
-            <button 
-              onClick={() => {
-                setRecordedChunks([])
-                setVideoBlob(null)
-                setVideoUrl(null)
-                setStatus('thinking')
-                setTimeLeft(thinkTime)
-              }}
-              className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-xl font-bold transition-all active:scale-95 border border-white/10"
-            >
-              <RefreshCcw className="w-5 h-5" /> Retake
-            </button>
-            <button 
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full sm:w-auto">
+            {(retakes === 999 || retakesLeft > 0) ? (
+              <button
+                type="button"
+                onClick={handleRetake}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-800 dark:text-white font-semibold text-sm transition-all active:scale-[0.98] border border-slate-300 dark:border-white/10"
+              >
+                <RefreshCcw className="w-4 h-4" />
+                <span>Retake ({retakes === 999 ? '∞' : `${retakesLeft} left`})</span>
+              </button>
+            ) : (
+              <span className="text-xs text-slate-400 dark:text-white/40 italic px-3 py-2">
+                No retakes remaining
+              </span>
+            )}
+
+            <button
+              type="button"
               onClick={() => videoBlob && onComplete(videoBlob)}
-              className="flex-1 md:flex-none relative group inline-flex rounded-xl"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm hover:shadow transition-all active:scale-[0.98]"
             >
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-40 group-hover:opacity-100 transition duration-500"></div>
-              <div className="relative w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all active:scale-95 border border-white/20">
-                <CheckCircle className="w-5 h-5" /> Submit Answer
-              </div>
+              <CheckCircle className="w-4 h-4" />
+              <span>Submit Answer & Continue</span>
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

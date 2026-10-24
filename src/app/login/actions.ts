@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use server'
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import prisma from '@/utils/prisma' // I need to create this!
+import prisma from '@/utils/prisma'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -20,7 +18,8 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/login?message=Could not authenticate user')
+    console.error('Supabase Login Error:', error.message)
+    redirect(`/login?message=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
@@ -49,9 +48,6 @@ export async function signup(formData: FormData) {
   // If signup successful, create company and profile via Prisma
   if (authData.user) {
     try {
-      // Import prisma dynamically or globally
-      const prisma = (await import('@/utils/prisma')).default
-      
       const company = await prisma.company.create({
         data: {
           name: data.company,

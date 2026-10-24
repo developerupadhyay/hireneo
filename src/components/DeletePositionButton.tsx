@@ -1,0 +1,117 @@
+'use client'
+
+import { useState } from 'react'
+import { Trash2, AlertTriangle } from 'lucide-react'
+import { deletePosition } from '@/app/dashboard/positions/actions'
+import { useRouter } from 'next/navigation'
+
+interface DeletePositionButtonProps {
+  positionId: string
+  positionTitle: string
+  redirectAfterDelete?: boolean
+  className?: string
+  variant?: 'icon' | 'button'
+}
+
+export default function DeletePositionButton({
+  positionId,
+  positionTitle,
+  redirectAfterDelete = false,
+  className = '',
+  variant = 'icon',
+}: DeletePositionButtonProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter()
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      const formData = new FormData()
+      formData.append('id', positionId)
+
+      await deletePosition(formData)
+      setIsOpen(false)
+      if (redirectAfterDelete) {
+        router.push('/dashboard/positions')
+      }
+    } catch (err) {
+      console.error('Failed to delete position:', err)
+      alert('Failed to delete position. Please try again.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  return (
+    <>
+      {variant === 'button' ? (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-900/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 ${className}`}
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Delete Position</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          aria-label={`Delete ${positionTitle}`}
+          title="Delete position"
+          className={`p-2 rounded-xl text-slate-400 dark:text-white/40 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 ${className}`}
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      )}
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div 
+            className="w-full max-w-md bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+            aria-describedby="delete-dialog-desc"
+          >
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 flex-shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 id="delete-dialog-title" className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                  Delete Position?
+                </h3>
+                <p id="delete-dialog-desc" className="text-slate-600 dark:text-white/60 text-xs sm:text-sm leading-relaxed">
+                  Are you sure you want to permanently delete <strong className="text-slate-900 dark:text-white font-semibold">&ldquo;{positionTitle}&rdquo;</strong>?
+                  All associated interview questions and candidate video submissions will also be deleted.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                {isDeleting ? 'Deleting...' : 'Delete Position'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
